@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout,
                              QVBoxLayout, QSpacerItem, QPushButton,
-                             QSizePolicy, QScrollArea, QLabel)
+                             QSizePolicy, QScrollArea, QLabel, QTableWidget, QTableWidgetItem)
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from scraper import Scraper
@@ -64,11 +64,9 @@ class Application(QWidget):
         # Output text area
         self.scrollArea = QScrollArea(self)
         self.scrollArea.setWidgetResizable(True)
-        self.output = QLabel(self)
-        self.output.setMargin(4)
-        self.output.setWordWrap(True)
-        self.output.setFont(font)
-        self.output.setAlignment(Qt.AlignTop)
+        self.output = QTableWidget(self)
+        self.output.setColumnCount(0)
+        self.output.setRowCount(0)
         self.scrollArea.setWidget(self.output)
         self.layout.addWidget(self.scrollArea)
 
@@ -102,10 +100,11 @@ class Application(QWidget):
         Convert data to string and
         display it in the text browser.
         """
-        text = ''
-        for row in data:
-            text += ', '.join(row) + '\n'
-        self.output.setText(text)
+        self.output.setColumnCount(len(data[0]))
+        self.output.setRowCount(len(data))
+        for i, row in enumerate(data):
+            for j, item in enumerate(row):
+                self.output.setItem(i, j, QTableWidgetItem(item))
 
 
 if __name__ == "__main__":
