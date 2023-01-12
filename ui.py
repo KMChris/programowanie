@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout,
                              QVBoxLayout, QSpacerItem, QPushButton,
-                             QSizePolicy, QScrollArea, QLabel, QTableWidget, QTableWidgetItem)
+                             QSizePolicy, QScrollArea, QLabel,
+                             QTableWidget, QTableWidgetItem)
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
 from scraper import Scraper
 from threading import Thread
 import sys
