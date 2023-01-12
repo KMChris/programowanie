@@ -1,9 +1,8 @@
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton,
-                             QGridLayout, QSizePolicy, QLabel,
-                             QHBoxLayout, QVBoxLayout, QSpacerItem,
-                             QScrollArea, QTextBrowser)
+from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout,
+                             QVBoxLayout, QSpacerItem, QPushButton,
+                             QSizePolicy, QScrollArea, QLabel)
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt
 from scraper import Scraper
 from threading import Thread
 import sys
@@ -38,17 +37,19 @@ class Application(QWidget):
         self.menu.addWidget(self.label)
 
         # Buttons for each website to scrap
-        self.yahoo_button = QPushButton()
-        self.yahoo_button.setText("Yahoo Finance")
-        self.yahoo_button.clicked.connect(self.scrap_yahoo)
-        self.menu.addWidget(self.yahoo_button)
+        self.button1 = QPushButton()
+        self.button1.setText("Yahoo Finance")
+        self.button1.clicked.connect(self.scrap_yahoo)
+        self.menu.addWidget(self.button1)
 
-        self.tradingview_button = QPushButton()
-        self.tradingview_button.setText("TradingView")
-        self.tradingview_button.clicked.connect(self.scrap_tradingview)
-        self.menu.addWidget(self.tradingview_button)
+        self.button2 = QPushButton()
+        self.button2.setText("TradingView")
+        self.button2.clicked.connect(self.scrap_tradingview)
+        self.menu.addWidget(self.button2)
 
-        spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        spacerItem = QSpacerItem(20, 40,
+                                 QSizePolicy.Minimum,
+                                 QSizePolicy.Expanding)
         self.menu.addItem(spacerItem)
 
         self.scrap_button = QPushButton()
@@ -80,6 +81,10 @@ class Application(QWidget):
         thread.start()
 
     def _scrap_yahoo(self):
+        """
+        Helper function for yahoo scrapping
+        to avoid blocking the UI.
+        """
         scraper = Scraper()
         data = scraper.scrap_yahoo_finance()
         self.display_data(data)
@@ -99,7 +104,7 @@ class Application(QWidget):
         """
         text = ''
         for row in data:
-            text += ' '.join(row) + '\n'
+            text += ', '.join(row) + '\n'
         self.output.setText(text)
 
 
