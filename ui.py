@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton,
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, QRect
 from scraper import Scraper
+from threading import Thread
 import sys
 
 
@@ -18,45 +19,67 @@ class Application(QWidget):
         self.resize(800, 600)
         self.setWindowTitle("Webscrapper")
 
-        self.h_layout = QHBoxLayout(self)
-        self.h_layout.setContentsMargins(0, 0, 0, 0)
+        # Create layout
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
 
-        self.v_layout = QVBoxLayout()
-        self.v_layout.setContentsMargins(10, 10, 10, 10)
-        self.h_layout.addLayout(self.v_layout)
+        # Menu bar
+        self.menu = QVBoxLayout()
+        self.menu.setContentsMargins(10, 10, 10, 10)
+        self.layout.addLayout(self.menu)
 
-        self.yahoo_button = QPushButton(self)
+        # Label for the menu
+        font = QFont()
+        font.setFamily("Arial")
+        font.setPointSize(12)
+
+        self.label = QLabel("Choose website to scrap:")
+        self.label.setFont(font)
+        self.menu.addWidget(self.label)
+
+        # Buttons for each website to scrap
+        self.yahoo_button = QPushButton()
         self.yahoo_button.setText("Yahoo Finance")
         self.yahoo_button.clicked.connect(self.scrap_yahoo)
-        self.v_layout.addWidget(self.yahoo_button)
+        self.menu.addWidget(self.yahoo_button)
 
-        self.tradingview_button = QPushButton(self)
+        self.tradingview_button = QPushButton()
         self.tradingview_button.setText("TradingView")
         self.tradingview_button.clicked.connect(self.scrap_tradingview)
-        self.v_layout.addWidget(self.tradingview_button)
+        self.menu.addWidget(self.tradingview_button)
 
         spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.v_layout.addItem(spacerItem)
+        self.menu.addItem(spacerItem)
 
-        self.v_layout_widget = QWidget(self)
-        self.v_layout_widget.setGeometry(QRect(0, 0, 451, 601))
-
-        self.scrap_button = QPushButton(self.v_layout_widget)
+        self.scrap_button = QPushButton()
         self.scrap_button.setText("Start scrapping")
-        self.v_layout.addWidget(self.scrap_button, 0, Qt.AlignRight)
+        self.menu.addWidget(self.scrap_button, 0, Qt.AlignRight)
 
-        self.text_browser = QTextBrowser(self)
+        # Text browser for displaying data
         font = QFont()
         font.setFamily("Lucida Console")
         font.setPointSize(12)
-        self.text_browser.setFont(font)
-        self.h_layout.addWidget(self.text_browser)
+
+        # Output text area
+        self.scrollArea = QScrollArea(self)
+        self.scrollArea.setWidgetResizable(True)
+        self.output = QLabel(self)
+        self.output.setMargin(4)
+        self.output.setWordWrap(True)
+        self.output.setFont(font)
+        self.output.setAlignment(Qt.AlignTop)
+        self.scrollArea.setWidget(self.output)
+        self.layout.addWidget(self.scrollArea)
 
     def scrap_yahoo(self):
         """
         Scrap data from Yahoo Finance
         website using Scraper class.
         """
+        thread = Thread(target=self._scrap_yahoo)
+        thread.start()
+
+    def _scrap_yahoo(self):
         scraper = Scraper()
         data = scraper.scrap_yahoo_finance()
         self.display_data(data)
@@ -74,8 +97,10 @@ class Application(QWidget):
         Convert data to string and
         display it in the text browser.
         """
-        text = "\n".join(data)
-        self.text_browser.setText(text)
+        text = ''
+        for row in data:
+            text += ' '.join(row) + '\n'
+        self.output.setText(text)
 
 
 if __name__ == "__main__":
