@@ -4,6 +4,13 @@ from selenium.webdriver.chrome.options import Options
 
 
 class Scraper:
+    """
+    This class use Selenium library to scrap data from
+    various websites, such as Yahoo Finance, TradingView,
+    Investing.com, etc. It uses a browser to download
+    data from the website and then parse it to get the
+    desired output format.
+    """
 
     def __init__(self):
         self._init_driver()

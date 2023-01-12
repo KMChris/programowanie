@@ -52,16 +52,12 @@ class Application(QWidget):
                                  QSizePolicy.Expanding)
         self.menu.addItem(spacerItem)
 
-        self.scrap_button = QPushButton()
-        self.scrap_button.setText("Start scrapping")
-        self.menu.addWidget(self.scrap_button, 0, Qt.AlignRight)
-
         # Text browser for displaying data
         font = QFont()
         font.setFamily("Lucida Console")
         font.setPointSize(12)
 
-        # Output text area
+        # Output table widget
         self.scrollArea = QScrollArea(self)
         self.scrollArea.setWidgetResizable(True)
         self.output = QTableWidget(self)
@@ -72,16 +68,16 @@ class Application(QWidget):
 
     def scrap_yahoo(self):
         """
-        Scrap data from Yahoo Finance
-        website using Scraper class.
+        Scrap data from Yahoo Finance website
+        using Scraper class by creating a new
+        thread to avoid blocking the UI.
         """
         thread = Thread(target=self._scrap_yahoo)
         thread.start()
 
     def _scrap_yahoo(self):
         """
-        Helper function for yahoo scrapping
-        to avoid blocking the UI.
+        Helper function for yahoo scrapping.
         """
         scraper = Scraper()
         data = scraper.scrap_yahoo_finance()
@@ -97,8 +93,8 @@ class Application(QWidget):
 
     def display_data(self, data):
         """
-        Convert data to string and
-        display it in the text browser.
+        Display data in the
+        output table widget.
         """
         self.output.setColumnCount(len(data[0]))
         self.output.setRowCount(len(data))
