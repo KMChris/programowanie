@@ -14,7 +14,7 @@ class Scraper:
         # options.add_argument("--headless")
         self.driver = webdriver.Chrome(options=options)
 
-    def get_data(self):
+    def scrap_yahoo_finance(self):
         """
         Download stock market data on commodities
         from the Yahoo Finance website
@@ -45,5 +45,5 @@ class Scraper:
 
 if __name__ == '__main__':
     scraper = Scraper()
-    print(*scraper.get_data(), sep='\n')
+    print(*scraper.scrap_yahoo_finance(), sep='\n')
     scraper.quit()
