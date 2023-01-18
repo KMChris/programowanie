@@ -7,7 +7,7 @@ load_dotenv()
 API_URL = 'https://financialmodelingprep.com/api/'
 API_KEY = os.environ.get('API_KEY')
 
-INTERVALS = ['1min', '5min', '15min', '30min', '1hour', '4hour']
+INTERVALS = ['1min', '5min', '15min', '30min', '1hour', '4hour', 'day']
 OUTPUT_TYPES = ['json', 'pandas']
 
 class API:
@@ -57,13 +57,22 @@ class API:
         url = 'v3/symbol/available-commodities'
         return self._get_json(url)
 
-    def get_historical_price(self, symbol):
+    def get_historical(self, symbol, interval='day'):
         """
-        Get historical price for
-        a specific stock symbol
+        Get historical prices and volume for
+        a specific stock, cryptocurrency,
+        forex or commodity symbol and
+        a given interval
         """
-        url = 'v3/historical-price-full/' + symbol
-        return self._get_json(url, 'historical')
+        if interval not in INTERVALS:
+            raise ValueError('Invalid interval')
+        if interval == 'day':
+            url = f'v3/historical-price-full/{symbol}'
+            data = self._get_json(url, 'historical')
+            return data.sort_values('date')
+        url = f'v3/historical-chart/{interval}/{symbol}'
+        data = self._get_json(url)
+        return data.sort_values('date')
 
     def get_historical_capitalization(self, symbol):
         """
@@ -73,23 +82,7 @@ class API:
         url = f'v3/historical-market-capitalization/{symbol}'
         return self._get_json(url, 'historical')
 
-    def get_historical(self, symbol, interval='1min'):
-        """
-        Get historical prices for
-        a specific cryptocurrency,
-        forex or commodity symbol
-        and given interval
-        """
-        if interval not in INTERVALS:
-            raise ValueError('Invalid interval')
-        if interval == 'day':
-            url = f'v3/historical-price-full/{symbol}'
-        else:
-            url = f'v3/historical-chart/{interval}/{symbol}'
-        return self._get_json(url, 'historical')
-
-
 if __name__ == "__main__":
     api = API()
     print(api.list_stocks())
-    print(api.get_historical_price('AAPL'))
+    print(api.get_historical('AAPL', '1min'))
