@@ -25,7 +25,7 @@ class Stock:
         List all stocks
         """
         url = API_URL + 'v3/stock/list' + '?apikey=' + API_KEY
-        return requests.get(url).iter_content()
+        return requests.get(url)
 
     @classmethod
     def get_historical_price(cls, symbol):
