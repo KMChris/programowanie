@@ -36,6 +36,22 @@ class Stock:
         return requests.get(url)
 
     @classmethod
+    def list_forex(cls):
+        """
+        List all forex
+        """
+        url = API_URL + 'v3/symbol/available-forex-currency-pairs' + '?apikey=' + API_KEY
+        return requests.get(url)
+
+    @classmethod
+    def list_comodities(cls):
+        """
+        List all commodities
+        """
+        url = API_URL + 'v3/symbol/available-commodities' + '?apikey=' + API_KEY
+        return requests.get(url)
+
+    @classmethod
     def get_historical_price(cls, symbol):
         """
         Get historical price for
@@ -54,10 +70,11 @@ class Stock:
         return cls._get_json(url)['historical']
 
     @classmethod
-    def get_historical_cryptocurrencies(cls, symbol, interval='1min'):
+    def get_historical(cls, symbol, interval='1min'):
         """
         Get historical prices for
-        a specific cryptocurrency symbol
+        a specific cryptocurrency,
+        forex or commodity symbol
         and given interval
         """
         if interval == 'day':
@@ -66,6 +83,7 @@ class Stock:
             url = 'v3/historical-chart/{interval}/{symbol}'
         return cls._get_json(url)['historical']
 
-stock = Stock()
-print(stock.list_stocks())
-print(stock.get_historical_price('AAPL'))
+if __name__=="__main__":
+    stock = Stock()
+    print(stock.list_stocks())
+    print(stock.get_historical_price('AAPL'))
