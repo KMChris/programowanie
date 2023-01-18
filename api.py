@@ -44,7 +44,7 @@ class Stock:
         return requests.get(url)
 
     @classmethod
-    def list_comodities(cls):
+    def list_commodities(cls):
         """
         List all commodities
         """
@@ -66,7 +66,7 @@ class Stock:
         Get historical capitalization for
         a specific stock symbol
         """
-        url = 'v3/historical-market-capitalization/{symbol}'
+        url = f'v3/historical-market-capitalization/{symbol}'
         return cls._get_json(url)['historical']
 
     @classmethod
@@ -78,12 +78,13 @@ class Stock:
         and given interval
         """
         if interval == 'day':
-            url = 'v3/historical-price-full/{symbol}'
+            url = f'v3/historical-price-full/{symbol}'
         else:
-            url = 'v3/historical-chart/{interval}/{symbol}'
+            url = f'v3/historical-chart/{interval}/{symbol}'
         return cls._get_json(url)['historical']
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     stock = Stock()
     print(stock.list_stocks())
     print(stock.get_historical_price('AAPL'))
