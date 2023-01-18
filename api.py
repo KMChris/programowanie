@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import pandas as pd
-import requests, os
+import requests
+import os
 
 load_dotenv()
 API_URL = "https://financialmodelingprep.com/api/"
