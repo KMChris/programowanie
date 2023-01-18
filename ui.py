@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout,
                              QVBoxLayout, QSpacerItem, QPushButton,
                              QSizePolicy, QScrollArea, QLabel,
-                             QTableWidget, QTableWidgetItem)
+                             QTableWidget, QTableWidgetItem, QComboBox)
 from PyQt5.QtGui import QFont
-from scraper import Scraper
+from analysis import Analysis
 from threading import Thread
 import sys
 
@@ -16,7 +16,7 @@ class Application(QWidget):
     def _init_ui(self):
         """Initialize the user interface"""
         self.resize(800, 600)
-        self.setWindowTitle("Webscrapper")
+        self.setWindowTitle("Financial Data Analysis")
 
         # Create layout
         self.layout = QHBoxLayout(self)
@@ -32,20 +32,20 @@ class Application(QWidget):
         font.setFamily("Arial")
         font.setPointSize(12)
 
-        self.label = QLabel("Choose website to scrap:")
+        self.label = QLabel("Choose symbol for analysis:")
         self.label.setFont(font)
         self.menu.addWidget(self.label)
 
-        # Buttons for each website to scrap
-        self.button1 = QPushButton()
-        self.button1.setText("Yahoo Finance")
-        self.button1.clicked.connect(self.scrap_yahoo)
-        self.menu.addWidget(self.button1)
+        # Select
+        self.combobox = QComboBox()
+        self.combobox.addItems(['AAPL', 'MSFT', 'AMZN', 'GOOG', 'FB'])
+        self.menu.addWidget(self.combobox)
 
-        self.button2 = QPushButton()
-        self.button2.setText("TradingView")
-        self.button2.clicked.connect(self.scrap_tradingview)
-        self.menu.addWidget(self.button2)
+        # Buttons for each website to scrap
+        self.button = QPushButton()
+        self.button.setText("Analyze")
+        self.button.clicked.connect(self.analyze)
+        self.menu.addWidget(self.button)
 
         spacerItem = QSpacerItem(20, 40,
                                  QSizePolicy.Minimum,
@@ -66,30 +66,18 @@ class Application(QWidget):
         self.scrollArea.setWidget(self.output)
         self.layout.addWidget(self.scrollArea)
 
-    def scrap_yahoo(self):
-        """
-        Scrap data from Yahoo Finance website
-        using Scraper class by creating a new
-        thread to avoid blocking the UI.
-        """
-        thread = Thread(target=self._scrap_yahoo)
-        thread.start()
-
-    def _scrap_yahoo(self):
-        """
-        Helper function for yahoo scrapping.
-        """
-        scraper = Scraper()
-        data = scraper.scrap_yahoo_finance()
-        self.display_data(data)
-        scraper.quit()
-
-    def scrap_tradingview(self):
+    def analyze(self):
         """
         Scrap data from TradingView
         website using Scraper class.
         """
-        pass
+        symbol = self.combobox.currentText()
+        analysis = Analysis(symbol)
+        self.display_data([
+            ['SMA', analysis.sma()[0]],
+            ['EMA', analysis.ema()[0]],
+            ['RSI', analysis.rsi()[0]]
+        ])
 
     def display_data(self, data):
         """
@@ -100,7 +88,7 @@ class Application(QWidget):
         self.output.setRowCount(len(data))
         for i, row in enumerate(data):
             for j, item in enumerate(row):
-                self.output.setItem(i, j, QTableWidgetItem(item))
+                self.output.setItem(i, j, QTableWidgetItem(str(item)))
 
 
 if __name__ == "__main__":

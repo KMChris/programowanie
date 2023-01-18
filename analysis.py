@@ -9,7 +9,7 @@ class Analysis:
         self.symbol = symbol
         self.data = self.api.get_historical(symbol, interval)
 
-    def sma(self, period: int) -> pd.DataFrame:
+    def sma(self, period: int = 10) -> pd.DataFrame:
         """
         Simple Moving Average (SMA) is the most basic
         type of moving average. It is calculated by
@@ -28,7 +28,7 @@ class Analysis:
         """
         return self.data['close'].rolling(period).mean()
 
-    def ema(self, period: int) -> pd.DataFrame:
+    def ema(self, period: int = 10) -> pd.DataFrame:
         """
         Exponential Moving Average (EMA) is a type of
         moving average that places a greater weight and
