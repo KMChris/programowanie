@@ -28,6 +28,14 @@ class Stock:
         return requests.get(url)
 
     @classmethod
+    def list_crypto(cls):
+        """
+        List all cryptocurrencies
+        """
+        url = API_URL + 'v3/symbol/available-cryptocurrencies' + '?apikey=' + API_KEY
+        return requests.get(url)
+
+    @classmethod
     def get_historical_price(cls, symbol):
         """
         Get historical price for
@@ -43,6 +51,19 @@ class Stock:
         a specific stock symbol
         """
         url = 'v3/historical-market-capitalization/{symbol}'
+        return cls._get_json(url)['historical']
+
+    @classmethod
+    def get_historical_cryptocurrencies(cls, symbol, interval='1min'):
+        """
+        Get historical prices for
+        a specific cryptocurrency symbol
+        and given interval
+        """
+        if interval == 'day':
+            url = 'v3/historical-price-full/{symbol}'
+        else:
+            url = 'v3/historical-chart/{interval}/{symbol}'
         return cls._get_json(url)['historical']
 
 stock = Stock()
