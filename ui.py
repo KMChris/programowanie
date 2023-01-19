@@ -78,7 +78,7 @@ class Application(QWidget):
             ['EMA', analysis.ema()[0]],
             ['RSI', analysis.rsi()[0]]
         ])
-        self.plot_candles(analysis.data)
+        self.plot_candles(analysis.data.iloc[:30])
 
     def display_data(self, data):
         """
@@ -97,45 +97,31 @@ class Application(QWidget):
         """
         Plot candlestick chart
         """
-        o, h, c, l, v = data['open'], data['high'], data['close'], data['low'], data['volume']
         scale = 'linear'  # scale = 'log'
         points = None
         plt.style.use('dark_background')
         plt.rcParams['axes.linewidth'] = 0.5
         plt.rcParams['figure.facecolor'] = '#131722'
         plt.gca().set_facecolor('#131722')
-        highest, lowest, max_volume = h[0], l[0], v[0]
-        for k in range(len(o)):
-            if h[k] > highest:
-                highest = h[k]
-            if l[k] < lowest:
-                lowest = l[k]
-            if v is not None:
-                if v[k] > max_volume:
-                    max_volume = v[k]
-        for k in range(len(o)):
-            if c[k] >= o[k]:
-                plt.gca().add_patch(plt.Rectangle(
-                    (k + 1, o[k]), 0.618, (c[k] - o[k]),
-                    color='#2BA59A'))
-                plt.gca().add_line(plt.Line2D(
-                    [k + 1.309, k + 1.309], [l[k], h[k]],
-                    color='#2BA59A', linewidth=1))
-                if v is not None:
-                    plt.axvspan(k + 0.809, k + 1.809,
-                                ymax=(v[k] / max_volume / 6.18),
-                                facecolor='#2BA59A', alpha=0.5)
+        highest = data['high'].max()
+        lowest = data['low'].min()
+        max_volume = data['volume'].max()
+        for i, (o, h, c, l, v) in enumerate(
+                data[['open', 'high', 'close', 'low', 'volume']].values):
+            if c >= o:
+                color = '#2BA59A'
             else:
-                plt.gca().add_patch(plt.Rectangle(
-                    (k + 1, o[k]), 0.618, (c[k] - o[k]),
-                    color='#EF5350'))
-                plt.gca().add_line(plt.Line2D(
-                    [k + 1.309, k + 1.309], [l[k], h[k]],
-                    color='#EF5350', linewidth=1))
-                if v is not None:
-                    plt.axvspan(k + 0.809, k + 1.809,
-                                ymax=(v[k] / max_volume / 6.18),
-                                facecolor='#EF5350', alpha=0.5)
+                color = '#EF5350'
+            plt.gca().add_patch(plt.Rectangle(
+                (i + 1, o), 0.618, (c - o),
+                color=color))
+            plt.gca().add_line(plt.Line2D(
+                [i + 1.309, i + 1.309], [l, h],
+                color=color, linewidth=1))
+            if v is not None:
+                plt.axvspan(i + 0.809, i + 1.809,
+                            ymax=(v / max_volume / 6.18),
+                            facecolor=color, alpha=0.5)
         if points is not None:
             plt.scatter(*points, color='orange', alpha=1)
         plt.yscale(scale)
@@ -144,7 +130,7 @@ class Application(QWidget):
         else:
             plt.gca().set_ylim([lowest - 0.05 * (highest - lowest),
                                 highest + 0.05 * (highest - lowest)])
-        plt.gca().set_xlim([0, len(o) + 2])
+        plt.gca().set_xlim([0, len(data.index) + 2])
         plt.gca().grid(True, color='#38414E', linewidth=0.5)
         plt.gca().set_axisbelow(True)
         plt.subplots_adjust(left=0.1, right=1, top=1, bottom=0.05)
