@@ -15,6 +15,8 @@ class API:
     def __init__(self, output='pandas'):
         if output not in OUTPUT_TYPES:
             raise ValueError('Invalid output type')
+        if API_KEY is None:
+            raise ValueError('API key not found')
         self.output = output
 
     def _get_json(self, url, key=None):
