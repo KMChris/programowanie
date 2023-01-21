@@ -19,9 +19,23 @@ class API:
             raise ValueError('API key not found')
         self.output = output
 
-    def _get_json(self, url, key=None):
+    def _get_data(self, url, key=None):
         """
-        Get json from url
+        Get Pandas DataFrame or JSON from API
+        for a given URL
+
+        Parameters
+        ----------
+        url : str
+            URL to get data from
+        key : str or None
+            Evaluate item from JSON
+            or return full JSON if None
+
+        Returns
+        -------
+        pandas.DataFrame or dict
+            Dataframe or JSON
         """
         url = API_URL + url + '?apikey=' + API_KEY
         json = requests.get(url).json()
@@ -31,33 +45,31 @@ class API:
             return pd.DataFrame(json)
         return json
 
-    def list_stocks(self):
+    def list_category(self, category):
         """
-        List all stocks
-        """
-        url = 'v3/stock/list'
-        return self._get_json(url)
+        List symbols from a specific category
 
-    def list_crypto(self):
-        """
-        List all cryptocurrencies
-        """
-        url = 'v3/symbol/available-cryptocurrencies'
-        return self._get_json(url)
+        Parameters
+        ----------
+        category : str
+            Category to list symbols from
 
-    def list_forex(self):
+        Returns
+        -------
+        pandas.DataFrame or dict
+            Dataframe or JSON with symbols and names
         """
-        List all forex
-        """
-        url = 'v3/symbol/available-forex-currency-pairs'
-        return self._get_json(url)
-
-    def list_commodities(self):
-        """
-        List all commodities
-        """
-        url = 'v3/symbol/available-commodities'
-        return self._get_json(url)
+        if category == 'stocks':
+            url = 'v3/stock/list'
+        elif category == 'crypto':
+            url = 'v3/symbol/available-cryptocurrencies'
+        elif category == 'forex':
+            url = 'v3/symbol/available-forex-currency-pairs'
+        elif category == 'commodities':
+            url = 'v3/symbol/available-forex-currency-pairs'
+        else:
+            raise ValueError('Invalid category')
+        return self._get_data(url)
 
     def get_historical(self, symbol, interval='day'):
         """
@@ -70,10 +82,10 @@ class API:
             raise ValueError('Invalid interval')
         if interval == 'day':
             url = f'v3/historical-price-full/{symbol}'
-            data = self._get_json(url, 'historical')
+            data = self._get_data(url, 'historical')
             return data.sort_values('date')
         url = f'v3/historical-chart/{interval}/{symbol}'
-        data = self._get_json(url)
+        data = self._get_data(url)
         return data.sort_values('date')
 
     def get_historical_capitalization(self, symbol):
@@ -82,7 +94,7 @@ class API:
         a specific stock symbol
         """
         url = f'v3/historical-market-capitalization/{symbol}'
-        return self._get_json(url, 'historical')
+        return self._get_data(url, 'historical')
 
 if __name__ == "__main__":
     api = API()

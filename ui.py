@@ -1,17 +1,28 @@
 from matplotlib import ticker, pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout,
                              QVBoxLayout, QSpacerItem, QPushButton,
                              QSizePolicy, QScrollArea, QLabel,
                              QTableWidget, QTableWidgetItem, QComboBox)
 from PyQt5.QtGui import QFont
+from threading import Thread
 from analysis import Analysis
+from api import API
 import sys
 
 
 class Application(QWidget):
     def __init__(self):
         super().__init__()
+        self.api = API()
+        self.symbols = {
+            'stocks': None,
+            'forex': None,
+            'crypto': None,
+            'commodities': None
+        }
         self._init_ui()
+        self.update_symbols()
 
     def _init_ui(self):
         """Initialize the user interface"""
@@ -37,9 +48,14 @@ class Application(QWidget):
         self.menu.addWidget(self.label)
 
         # Select
-        self.combobox = QComboBox()
-        self.combobox.addItems(['AAPL', 'MSFT', 'AMZN', 'GOOG', 'FB'])
-        self.menu.addWidget(self.combobox)
+        self.category = QComboBox()
+        self.category.addItems(['Stocks', 'Forex', 'Crypto', 'Commodities'])
+        self.category.currentTextChanged.connect(self.update_symbols)
+        self.menu.addWidget(self.category)
+
+        self.symbol = QComboBox()
+        self.symbol.setEnabled(False)
+        self.menu.addWidget(self.symbol)
 
         # Buttons for each website to scrap
         self.button = QPushButton()
@@ -52,11 +68,6 @@ class Application(QWidget):
                                  QSizePolicy.Expanding)
         self.menu.addItem(spacerItem)
 
-        # Text browser for displaying data
-        font = QFont()
-        font.setFamily("Lucida Console")
-        font.setPointSize(12)
-
         # Output table widget
         self.scrollArea = QScrollArea(self)
         self.scrollArea.setWidgetResizable(True)
@@ -64,21 +75,70 @@ class Application(QWidget):
         self.output.setColumnCount(0)
         self.output.setRowCount(0)
         self.scrollArea.setWidget(self.output)
-        self.layout.addWidget(self.scrollArea)
+        self.menu.addWidget(self.scrollArea)
+
+        plt.style.use('dark_background')
+        plt.rcParams['axes.linewidth'] = 0.5
+        plt.rcParams['figure.facecolor'] = '#131722'
+        self.figure = plt.figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.layout.addWidget(self.canvas)
+
+        self.setLayout(self.layout)
+
+    def update_symbols(self):
+        """
+        Update the symbols list
+        when the category is changed.
+        """
+        thread = Thread(target=self._update_symbols)
+        thread.start()
+
+    def _update_symbols(self):
+        """
+        Start the update in a separate
+        thread. This is done to prevent
+        the GUI from freezing.
+        List all available symbols
+        for the selected category and
+        add them to the symbols list.
+        """
+        self.symbol.setEnabled(False)
+        self.symbol.clear()
+        category = self.category.currentText().lower()
+        if self.symbols[category] is not None:
+            self.symbol.addItems(self.symbols[category])
+        else:
+            symbols = self.api.list_category(category)['symbol']
+            symbols = symbols.sort_values()
+            self.symbols[category] = symbols
+            self.symbol.addItems(symbols)
+        self.symbol.setEnabled(True)
 
     def analyze(self):
         """
-        Scrap data from TradingView
-        website using Scraper class.
+        Analyze the data for the selected
+        symbol. Display the results in
+        the output table widget and plot
+        the candlestick chart.
         """
-        symbol = self.combobox.currentText()
+        thread = Thread(target=self._analyze)
+        thread.start()
+
+    def _analyze(self):
+        """
+        Start the analysis in a separate
+        thread. This is done to prevent
+        the GUI from freezing.
+        """
+        symbol = self.symbol.currentText()
         analysis = Analysis(symbol)
         self.display_data([
             ['SMA', analysis.sma()[0]],
             ['EMA', analysis.ema()[0]],
             ['RSI', analysis.rsi()[0]]
         ])
-        self.plot_candles(analysis.data.iloc[:30])
+        self.plot_candles(analysis.data.iloc[-30:])
 
     def display_data(self, data):
         """
@@ -92,51 +152,53 @@ class Application(QWidget):
                 self.output.setItem(i, j, QTableWidgetItem(str(item)))
         self.output.resizeColumnsToContents()
 
-    @staticmethod
-    def plot_candles(data):
+    def plot_candles(self, data):
         """
         Plot candlestick chart
         """
-        scale = 'linear'  # scale = 'log'
-        points = None
-        plt.style.use('dark_background')
-        plt.rcParams['axes.linewidth'] = 0.5
-        plt.rcParams['figure.facecolor'] = '#131722'
-        plt.gca().set_facecolor('#131722')
+        self.figure.clear()
+        ax = self.figure.add_subplot(111)
+        ax.set_facecolor('#131722')
+        ax.tick_params(axis='x', colors='#F0F0F0')
+        ax.tick_params(axis='y', colors='#F0F0F0')
+        ax.grid(color='#F0F0F0', linestyle='--', linewidth=0.5)
+        ax.set_xticks(range(1, len(data) + 1))
+        ax.set_xticklabels(data['date'])
+
         highest = data['high'].max()
         lowest = data['low'].min()
-        max_volume = data['volume'].max()
+        if 'volume' in data.columns:
+            max_volume = data['volume'].max()
+        else:
+            data.loc['volume'] = None
         for i, (o, h, c, l, v) in enumerate(
                 data[['open', 'high', 'close', 'low', 'volume']].values):
             if c >= o:
                 color = '#2BA59A'
             else:
                 color = '#EF5350'
-            plt.gca().add_patch(plt.Rectangle(
+            ax.add_patch(plt.Rectangle(
                 (i + 1, o), 0.618, (c - o),
                 color=color))
-            plt.gca().add_line(plt.Line2D(
+            ax.add_line(plt.Line2D(
                 [i + 1.309, i + 1.309], [l, h],
                 color=color, linewidth=1))
             if v is not None:
                 plt.axvspan(i + 0.809, i + 1.809,
                             ymax=(v / max_volume / 6.18),
                             facecolor=color, alpha=0.5)
-        if points is not None:
-            plt.scatter(*points, color='orange', alpha=1)
-        plt.yscale(scale)
         if lowest - 0.05 * (highest - lowest) < 0:
-            plt.gca().set_ylim([0, highest + 0.05 * (highest - lowest)])
+            ax.set_ylim([0, highest + 0.05 * (highest - lowest)])
         else:
-            plt.gca().set_ylim([lowest - 0.05 * (highest - lowest),
-                                highest + 0.05 * (highest - lowest)])
-        plt.gca().set_xlim([0, len(data.index) + 2])
-        plt.gca().grid(True, color='#38414E', linewidth=0.5)
-        plt.gca().set_axisbelow(True)
-        plt.subplots_adjust(left=0.1, right=1, top=1, bottom=0.05)
-        plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(nbins=15))
-        plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(nbins=30))
-        plt.show()
+            ax.set_ylim([lowest - 0.05 * (highest - lowest),
+                         highest + 0.05 * (highest - lowest)])
+        ax.set_xlim([0, len(data.index) + 2])
+        ax.grid(True, color='#38414E', linewidth=0.5)
+        ax.set_axisbelow(True)
+        ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
+        ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=20))
+        self.figure.tight_layout()
+        self.canvas.draw()
 
 
 if __name__ == "__main__":
