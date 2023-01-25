@@ -1,5 +1,5 @@
 import pandas as pd
-from .api import API
+from api import API
 
 
 class Analysis:
@@ -180,3 +180,4 @@ if __name__ == "__main__":
     analysis = Analysis('AAPL')
     print(analysis.sma(10))
     print(analysis.ema(10))
+    print(analysis.rsi(-1))
