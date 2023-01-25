@@ -68,3 +68,55 @@ def test_get_data():
         assert list(df.keys()) == ['key1']
         assert list(df['key1']) == ['col1', 'col2']
 
+# Test case when API_KEY is invalid
+    api_module.API_KEY = 'invalid'
+    api = api_module.API()
+    with pytest.raises(ValueError):
+        api._get_data('v3/stock/list', 'symbol')
+
+def test_list_category():
+    data = [
+        {
+            'symbol': 'AAPL',
+            'name': 'Apple Inc.'
+        },
+        {
+            'symbol': 'MSFT',
+            'name': 'Microsoft Corporation'
+        }
+    ]
+    api = api_module.API()
+    api._get_data = lambda x: pd.DataFrame(data)
+
+    # Test case when category is 'stocks'
+    result = api.list_category('stocks')
+    assert isinstance(result, pd.DataFrame)
+    assert list(result.columns) == ['symbol', 'name']
+    assert list(result.symbol) == ['AAPL', 'MSFT']
+    assert list(result.name) == ['Apple Inc.', 'Microsoft Corporation']
+
+    # Test case when category is 'crypto'
+    result = api.list_category('crypto')
+    assert isinstance(result, pd.DataFrame)
+    assert list(result.columns) == ['symbol', 'name']
+    assert list(result.symbol) == ['AAPL', 'MSFT']
+    assert list(result.name) == ['Apple Inc.', 'Microsoft Corporation']
+
+    # Test case when category is 'forex'
+    result = api.list_category('forex')
+    assert isinstance(result, pd.DataFrame)
+    assert list(result.columns) == ['symbol', 'name']
+    assert list(result.symbol) == ['AAPL', 'MSFT']
+    assert list(result.name) == ['Apple Inc.', 'Microsoft Corporation']
+
+    # Test case when category is 'commodities'
+    result = api.list_category('commodities')
+    assert isinstance(result, pd.DataFrame)
+    assert list(result.columns) == ['symbol', 'name']
+    assert list(result.symbol) == ['AAPL', 'MSFT']
+    assert list(result.name) == ['Apple Inc.', 'Microsoft Corporation']
+
+    # Test case when category is invalid
+    with pytest.raises(ValueError) as e:
+        api.list_category('invalid')
+    assert str(e.value) == 'Invalid category'
