@@ -1,5 +1,5 @@
 import pandas as pd
-from api import API
+from .api import API
 
 
 class Analysis:
