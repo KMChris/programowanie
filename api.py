@@ -94,7 +94,7 @@ class API:
         a specific stock symbol
         """
         url = f'v3/historical-market-capitalization/{symbol}'
-        return self._get_data(url, 'historical')
+        return self._get_data(url)
 
 if __name__ == "__main__":
     api = API()
