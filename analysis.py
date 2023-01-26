@@ -9,6 +9,66 @@ class Analysis:
         self.symbol = symbol
         self.data = self.api.get_historical(symbol, interval)
 
+    def get_signal(self) -> str:
+        """
+        Get signal for trading based on technical
+        indicators. It is based on the following
+        rules:
+        - Buy when MACD crosses above signal line
+        - Sell when MACD crosses below signal line
+        - Buy when RSI is below 30
+        - Sell when RSI is above 70
+        - Buy when stochastic %K crosses above %D
+        - Sell when stochastic %K crosses below %D
+        - Buy when SMA is above EMA
+        - Sell when SMA is below EMA
+        - Buy when SMA is above price
+        - Sell when SMA is below price
+        - Buy when EMA is above price
+        - Sell when EMA is below price
+
+        Returns
+        -------
+        str
+            Signal for trading
+        """
+        sma = self.sma()
+        ema = self.ema()
+        rsi = self.rsi()
+        macd = self.macd()
+        stoch = self.stochastic()
+        total_signal = 0
+        if macd['MACD'].iloc[-1] > macd['Signal'].iloc[-1]:
+            total_signal += 1
+        else:
+            total_signal -= 1
+        if rsi.iloc[-1] < 30:
+            total_signal += 1
+        elif rsi.iloc[-1] > 70:
+            total_signal -= 1
+        if stoch['%K'].iloc[-1] > stoch['%D'].iloc[-1]:
+            total_signal += 1
+        else:
+            total_signal -= 1
+        if sma.iloc[-1] > ema.iloc[-1]:
+            total_signal += 1
+        else:
+            total_signal -= 1
+        if sma.iloc[-1] > self.data['close'].iloc[-1]:
+            total_signal += 1
+        else:
+            total_signal -= 1
+        if ema.iloc[-1] > self.data['close'].iloc[-1]:
+            total_signal += 1
+        else:
+            total_signal -= 1
+        if total_signal > 1:
+            return 'buy'
+        elif total_signal < -1:
+            return 'sell'
+        else:
+            return 'neutral'
+
     def sma(self, period: int = 10) -> pd.DataFrame:
         """
         Simple Moving Average (SMA) is the most basic
