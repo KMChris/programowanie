@@ -68,7 +68,7 @@ def test_get_data():
         assert list(df.keys()) == ['key1']
         assert list(df['key1']) == ['col1', 'col2']
 
-# Test case when API_KEY is invalid
+    # Test case when API_KEY is invalid
     api_module.API_KEY = 'invalid'
     api = api_module.API()
     with pytest.raises(ValueError):
@@ -120,3 +120,49 @@ def test_list_category():
     with pytest.raises(ValueError) as e:
         api.list_category('invalid')
     assert str(e.value) == 'Invalid category'
+
+def test_get_historical():
+    # Test case when interval is 'day'
+    data = {
+        'historical': {
+            'date': ['2022-01-01', '2022-01-02'],
+            'close': [100, 110]
+        }
+    }
+    api = api_module.API()
+    api._get_data = lambda x, y: pd.DataFrame(data[y])
+    result = api.get_historical('AAPL')
+    assert isinstance(result, pd.DataFrame)
+    assert list(result.columns) == ['date', 'close']
+    assert list(result.date) == ['2022-01-01', '2022-01-02']
+    assert list(result.close) == [100, 110]
+
+    # Test case when interval is not 'day'
+    data = {
+        'date': ['2022-01-01', '2022-01-02'],
+        'close': [100, 110]
+    }
+    api = api_module.API()
+    api._get_data = lambda x: pd.DataFrame(data)
+    result = api.get_historical('AAPL', interval='1min')
+    assert isinstance(result, pd.DataFrame)
+    assert list(result.columns) == ['date', 'close']
+    assert list(result.date) == ['2022-01-01', '2022-01-02']
+    assert list(result.close) == [100, 110]
+
+    # Test case when interval is invalid
+    with pytest.raises(ValueError):
+        api.get_historical('AAPL', interval='invalid')
+
+def test_get_historical_capitalization():
+    data = {
+        'date': ['2022-01-01', '2022-01-02'],
+        'marketCap': [1000000, 1100000]
+    }
+    api = api_module.API()
+    api._get_data = lambda x: pd.DataFrame(data)
+    result = api.get_historical_capitalization('AAPL')
+    assert isinstance(result, pd.DataFrame)
+    assert list(result.columns) == ['date', 'marketCap']
+    assert list(result.date) == ['2022-01-01', '2022-01-02']
+    assert list(result.marketCap) == [1000000, 1100000]
