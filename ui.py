@@ -9,6 +9,7 @@ from threading import Thread
 from analysis import Analysis
 from api import API
 import sys
+import csv
 
 
 class Application(QWidget):
@@ -16,13 +17,31 @@ class Application(QWidget):
         super().__init__()
         self.api = API()
         self.symbols = {
-            'stocks': None,
-            'forex': None,
-            'crypto': None,
-            'commodities': None
+            'stocks': [],
+            'forex': [],
+            'crypto': [],
+            'commodities': []
         }
+        self.names = {
+            'stocks': [],
+            'forex': [],
+            'crypto': [],
+            'commodities': []
+        }
+        self._get_symbols()
         self._init_ui()
         self.update_symbols()
+
+    def _get_symbols(self):
+        """
+        Get symbols and names from CSV files
+        """
+        for category in self.symbols:
+            with open(f'symbols/{category}.csv', 'r') as f:
+                file = csv.reader(f)
+                for row in file:
+                    self.symbols[category].append(row[0])
+                    self.names[category].append(row[1])
 
     def _init_ui(self):
         """Initialize the user interface"""
