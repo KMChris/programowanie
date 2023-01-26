@@ -8,6 +8,7 @@ class Analysis:
         self.api = API()
         self.symbol = symbol
         self.data = self.api.get_historical(symbol, interval)
+        self.signal = self.get_signal()
 
     def get_signal(self) -> str:
         """
