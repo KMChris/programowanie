@@ -56,7 +56,7 @@ class Application(QWidget):
 
     def _init_ui(self):
         """Initialize the user interface"""
-        self.resize(800, 600)
+        self.resize(1200, 600)
         self.setWindowTitle("Financial Data Analysis")
 
         # Create layout
@@ -64,9 +64,12 @@ class Application(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         # Menu bar
+        self.menu_widget = QWidget()
         self.menu = QVBoxLayout()
         self.menu.setContentsMargins(10, 10, 10, 10)
-        self.layout.addLayout(self.menu)
+        self.menu_widget.setLayout(self.menu)
+        self.menu_widget.setFixedWidth(250)
+        self.layout.addWidget(self.menu_widget)
 
         # Label for the menu
         font = QFont()
@@ -77,17 +80,37 @@ class Application(QWidget):
         self.label.setFont(font)
         self.menu.addWidget(self.label)
 
-        # Select
+        # Select category
         self.category = QComboBox()
         self.category.addItems(['Stocks', 'Forex', 'Crypto', 'Commodities'])
         self.category.currentTextChanged.connect(self.update_symbols)
         self.menu.addWidget(self.category)
 
+        # Symbol selection
         self.symbol = QComboBox()
         self.symbol.setEnabled(False)
         self.menu.addWidget(self.symbol)
 
-        # Buttons for each website to scrap
+        # Checkboxes for indicators
+        self.label_indicators = QLabel("Choose indicators:")
+        font.setPointSize(10)
+        self.label_indicators.setFont(font)
+        self.menu.addWidget(self.label_indicators)
+        for indicator in self.indicators:
+            self.indicators[indicator].stateChanged.connect(self.update_indicators)
+            self.menu.addWidget(self.indicators[indicator])
+
+        # Bins for histogram
+        self.label_bins = QLabel("Bins for histogram:")
+        self.label_bins.setFont(font)
+        self.menu.addWidget(self.label_bins)
+        self.bins_spinbox = QSpinBox()
+        self.bins_spinbox.setRange(10, 500)
+        self.bins_spinbox.setValue(self.bins)
+        self.bins_spinbox.valueChanged.connect(self.update_bins)
+        self.menu.addWidget(self.bins_spinbox)
+
+        # Button for analysis
         self.button = QPushButton()
         self.button.setText("Analyze")
         self.button.clicked.connect(self.analyze)
@@ -98,15 +121,7 @@ class Application(QWidget):
                                  QSizePolicy.Expanding)
         self.menu.addItem(spacerItem)
 
-        # Output table widget
-        self.scrollArea = QScrollArea(self)
-        self.scrollArea.setWidgetResizable(True)
-        self.output = QTableWidget(self)
-        self.output.setColumnCount(0)
-        self.output.setRowCount(0)
-        self.scrollArea.setWidget(self.output)
-        self.menu.addWidget(self.scrollArea)
-
+        # Plot
         plt.style.use('dark_background')
         plt.rcParams['axes.linewidth'] = 0.5
         plt.rcParams['figure.facecolor'] = '#131722'
@@ -124,8 +139,40 @@ class Application(QWidget):
         self.symbol.setEnabled(False)
         self.symbol.clear()
         category = self.category.currentText().lower()
-        self.symbol.addItems(self.symbols[category])
+        self.symbol.addItems(self.names[category])
         self.symbol.setEnabled(True)
+
+    def update_indicators(self):
+        """
+        Update the indicators list
+        when the checkboxes are changed.
+        """
+        if self.indicators['rsi'].isChecked() \
+                or self.indicators['stochastic'].isChecked() \
+                or self.indicators['williams'].isChecked():
+            self.indicators['macd'].setChecked(False)
+            self.indicators['macd'].setEnabled(False)
+        else:
+            self.indicators['macd'].setEnabled(True)
+
+        if self.indicators['macd'].isChecked():
+            self.indicators['rsi'].setChecked(False)
+            self.indicators['rsi'].setEnabled(False)
+            self.indicators['stochastic'].setChecked(False)
+            self.indicators['stochastic'].setEnabled(False)
+            self.indicators['williams'].setChecked(False)
+            self.indicators['williams'].setEnabled(False)
+        else:
+            self.indicators['rsi'].setEnabled(True)
+            self.indicators['stochastic'].setEnabled(True)
+            self.indicators['williams'].setEnabled(True)
+
+    def update_bins(self):
+        """
+        Update the number of bins
+        for the histogram.
+        """
+        self.bins = self.bins_spinbox.value()
 
     def analyze(self):
         """
@@ -379,6 +426,7 @@ class Application(QWidget):
         williams = self.analysis.williams().iloc[-self.bins - 1:]
         ax.plot(self.bins - williams.index + 0.309,
                 williams, color='#F44336', label='Williams %R')
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
