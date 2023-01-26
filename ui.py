@@ -121,6 +121,26 @@ class Application(QWidget):
                                  QSizePolicy.Expanding)
         self.menu.addItem(spacerItem)
 
+        # Prediction
+        self.label_prediction = QLabel("Prediction:")
+        self.label_prediction.setFont(font)
+        self.label_prediction.hide()
+        self.menu.addWidget(self.label_prediction)
+
+        font.setPointSize(20)
+        self.signal = QWidget()
+        self.signal.setStyleSheet("background-color: #66ff66")
+        self.signal.setFixedHeight(50)
+        self.signal_label = QLabel("BUY")
+        self.signal_label.setAlignment(Qt.AlignCenter)
+        self.signal_label.setFont(font)
+        self.signal_label.setStyleSheet("color: #000000")
+        self.signal_layout = QVBoxLayout()
+        self.signal_layout.addWidget(self.signal_label)
+        self.signal.setLayout(self.signal_layout)
+        self.signal.hide()
+        self.menu.addWidget(self.signal)
+
         # Plot
         plt.style.use('dark_background')
         plt.rcParams['axes.linewidth'] = 0.5
@@ -141,6 +161,21 @@ class Application(QWidget):
         category = self.category.currentText().lower()
         self.symbol.addItems(self.names[category])
         self.symbol.setEnabled(True)
+
+    def update_signal(self, signal):
+        """
+        Update the signal label and box
+        color when the signal is changed.
+        """
+        self.signal_label.setText(signal.upper())
+        if signal == 'buy':
+            self.signal.setStyleSheet("background-color: #66ff66")
+        elif signal == 'sell':
+            self.signal.setStyleSheet("background-color: #ff6666")
+        else:
+            self.signal.setStyleSheet("background-color: #6666ff")
+        self.label_prediction.show()
+        self.signal.show()
 
     def update_indicators(self):
         """
@@ -426,7 +461,6 @@ class Application(QWidget):
         williams = self.analysis.williams().iloc[-self.bins - 1:]
         ax.plot(self.bins - williams.index + 0.309,
                 williams, color='#F44336', label='Williams %R')
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
