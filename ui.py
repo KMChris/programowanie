@@ -1,10 +1,10 @@
 from matplotlib import ticker, pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout,
-                             QVBoxLayout, QSpacerItem, QPushButton,
-                             QSizePolicy, QScrollArea, QLabel,
-                             QTableWidget, QTableWidgetItem, QComboBox)
+from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout, QCheckBox,
+                             QVBoxLayout, QSpacerItem, QPushButton, QComboBox,
+                             QSizePolicy, QLabel, QSpinBox)
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
 from threading import Thread
 from analysis import Analysis
 from api import API
@@ -16,6 +16,8 @@ class Application(QWidget):
     def __init__(self):
         super().__init__()
         self.api = API()
+        self.analysis = None
+        self.bins = 50
         self.symbols = {
             'stocks': [],
             'forex': [],
@@ -27,6 +29,15 @@ class Application(QWidget):
             'forex': [],
             'crypto': [],
             'commodities': []
+        }
+        self.indicators = {
+            'sma': QCheckBox('SMA'),
+            'ema': QCheckBox('EMA'),
+            'bollinger': QCheckBox('Bollinger Bands'),
+            'rsi': QCheckBox('RSI'),
+            'macd': QCheckBox('MACD'),
+            'stochastic': QCheckBox('Stochastic'),
+            'williams': QCheckBox('Williams %R')
         }
         self._get_symbols()
         self._init_ui()
@@ -132,30 +143,22 @@ class Application(QWidget):
         thread. This is done to prevent
         the GUI from freezing.
         """
-        symbol = self.symbol.currentText()
-        analysis = Analysis(symbol)
-        self.display_data([
-            ['SMA', analysis.sma()[0]],
-            ['EMA', analysis.ema()[0]],
-            ['RSI', analysis.rsi()[0]]
-        ])
-        self.plot_candles(analysis.data.iloc[-30:])
+        index = self.symbol.currentIndex()
+        category = self.category.currentText().lower()
+        symbol = self.symbols[category][index]
+        self.analysis = Analysis(symbol)
+        self.draw_plot(self.analysis.data.iloc[-self.bins:])
+        self.update_signal(self.analysis.signal)
 
-    def display_data(self, data):
+    def draw_plot(self, data):
         """
-        Display data in the
-        output table widget.
-        """
-        self.output.setColumnCount(len(data[0]))
-        self.output.setRowCount(len(data))
-        for i, row in enumerate(data):
-            for j, item in enumerate(row):
-                self.output.setItem(i, j, QTableWidgetItem(str(item)))
-        self.output.resizeColumnsToContents()
+        Draw the candlestick chart
+        on the canvas.
 
-    def plot_candles(self, data):
-        """
-        Plot candlestick chart
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            The data to plot.
         """
         self.figure.clear()
         ax = self.figure.add_subplot(111)
@@ -163,43 +166,127 @@ class Application(QWidget):
         ax.tick_params(axis='x', colors='#F0F0F0')
         ax.tick_params(axis='y', colors='#F0F0F0')
         ax.grid(color='#F0F0F0', linestyle='--', linewidth=0.5)
-        ax.set_xticks(range(1, len(data) + 1))
+        ax.set_xticks(range(0, len(data)))
         ax.set_xticklabels(data['date'])
-
-        highest = data['high'].max()
-        lowest = data['low'].min()
-        if 'volume' in data.columns:
-            max_volume = data['volume'].max()
-        else:
-            data.loc['volume'] = None
-        for i, (o, h, c, l, v) in enumerate(
-                data[['open', 'high', 'close', 'low', 'volume']].values):
-            if c >= o:
-                color = '#2BA59A'
-            else:
-                color = '#EF5350'
-            ax.add_patch(plt.Rectangle(
-                (i + 1, o), 0.618, (c - o),
-                color=color))
-            ax.add_line(plt.Line2D(
-                [i + 1.309, i + 1.309], [l, h],
-                color=color, linewidth=1))
-            if v is not None:
-                plt.axvspan(i + 0.809, i + 1.809,
-                            ymax=(v / max_volume / 6.18),
-                            facecolor=color, alpha=0.5)
-        if lowest - 0.05 * (highest - lowest) < 0:
-            ax.set_ylim([0, highest + 0.05 * (highest - lowest)])
-        else:
-            ax.set_ylim([lowest - 0.05 * (highest - lowest),
-                         highest + 0.05 * (highest - lowest)])
-        ax.set_xlim([0, len(data.index) + 2])
+        ax.set_xlim([1, len(data.index) + 1])
         ax.grid(True, color='#38414E', linewidth=0.5)
         ax.set_axisbelow(True)
         ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
         ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=20))
+        self.plot_candles(ax, data)
+        self.plot_indicators(ax)
         self.figure.tight_layout()
         self.canvas.draw()
+
+    @staticmethod
+    def plot_candles(ax, data):
+        """
+        Plot the candlesticks on the given
+        axes using provided data.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        data : pandas.DataFrame
+            The data to plot.
+        """
+        highest = data['high'].max()
+        lowest = data['low'].min()
+        max_volume = data['volume'].max()
+        values = data[['open', 'high', 'close', 'low', 'volume']].values
+        for i, (o, h, c, l, v) in enumerate(values):
+            color = '#2BA59A' if c >= o else '#EF5350'
+
+            # Plot candle body
+            ax.add_patch(plt.Rectangle((i + 1, o), 0.618,
+                                       (c - o), color=color))
+
+            # Plot high and low
+            ax.add_line(plt.Line2D([i + 1.309, i + 1.309],
+                                   [l, h], color=color, linewidth=1))
+
+            # Plot volume
+            ax.axvspan(i + 0.809, i + 1.809,
+                       ymax=(v / max_volume / 6.18),
+                       facecolor=color, alpha=0.5)
+        if lowest - 0.05 * (highest - lowest) < 0:
+            ax.set_ylim(0.0, highest + 0.05 * (highest - lowest))
+        else:
+            ax.set_ylim(lowest - 0.05 * (highest - lowest),
+                        highest + 0.05 * (highest - lowest))
+
+    def plot_indicators(self, ax):
+        """
+        Plot indicators on the
+        candlestick chart.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        """
+        sma = self.indicators['sma'].isChecked()
+        ema = self.indicators['ema'].isChecked()
+        bollinger = self.indicators['bollinger'].isChecked()
+        rsi = self.indicators['rsi'].isChecked()
+        macd = self.indicators['macd'].isChecked()
+        stochastic = self.indicators['stochastic'].isChecked()
+        williams = self.indicators['williams'].isChecked()
+
+        if sma and not bollinger:
+            self.plot_sma(ax)
+        if ema:
+            self.plot_ema(ax)
+        if bollinger:
+            self.plot_bollinger(ax)
+
+        # Plot indicators with a second y-axis
+        if rsi or stochastic or williams:
+            ax2 = ax.twinx()
+            ax2.set_ylim([0, 100])
+            ax2.set_yticks([0, 20, 40, 60, 80, 100])
+            ax2.set_yticklabels(['0', '20', '40', '60', '80', '100'])
+            ax2.tick_params(axis='y', colors='#F0F0F0')
+            ax2.set_axisbelow(True)
+            if rsi:
+                self.plot_rsi(ax2)
+            if stochastic:
+                self.plot_stochastic(ax2)
+            if williams:
+                self.plot_williams(ax2)
+            ax2.legend(loc='lower left')
+        elif macd:
+            ax2 = ax.twinx()
+            ax2.tick_params(axis='y', colors='#F0F0F0')
+            ax2.set_axisbelow(True)
+            self.plot_macd(ax2)
+            ax2.legend(loc='lower left')
+
+        # Add legend on the first y-axis
+        if sma or ema or bollinger:
+            ax.legend(loc='upper left')
+
+    def plot_sma(self, ax):
+        pass
+
+    def plot_ema(self, ax):
+        pass
+
+    def plot_bollinger(self, ax):
+        pass
+
+    def plot_rsi(self, ax):
+        pass
+
+    def plot_macd(self, ax):
+        pass
+
+    def plot_stochastic(self, ax):
+        pass
+
+    def plot_williams(self, ax):
+        pass
 
 
 if __name__ == "__main__":
