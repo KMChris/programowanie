@@ -62,17 +62,17 @@ def test_macd():
 
     # Test for default values
     macd = analysis.macd()
-    assert pytest.approx(macd['MACD'][29]) == -5.701697
-    assert pytest.approx(macd['Signal'][29]) == -5.172207
-    assert pytest.approx(macd['Histogram'][29]) == -0.529490
+    assert pytest.approx(macd['MACD'][29]) == 5.701697
+    assert pytest.approx(macd['Signal'][29]) == 5.172207
+    assert pytest.approx(macd['Histogram'][29]) == 0.529490
 
     # Test for custom values
     macd = analysis.macd(5, 10, 15)
-    values = [-1.777262, -1.855002, -1.925316,
-              -1.988715, -2.045724, -2.096861,
-              -2.142633, -2.183523, -2.219990,
-              -2.252460, -2.281332, -2.306971,
-              -2.329714, -2.349866, -2.367704]
+    values = [1.777262, 1.855002, 1.925316,
+              1.988715, 2.045724, 2.096861,
+              2.142633, 2.183523, 2.219990,
+              2.252460, 2.281332, 2.306971,
+              2.329714, 2.349866, 2.367704]
     for i, m in enumerate(macd['MACD'][15:]):
         assert pytest.approx(m) == values[i]
 

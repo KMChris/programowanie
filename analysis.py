@@ -51,8 +51,8 @@ class Analysis:
         return self.data['close'].ewm(
             span=period, adjust=False).mean()
 
-    def macd(self, signal_period: int = 9, slow_period: int = 12,
-             fast_period: int = 26) -> pd.DataFrame:
+    def macd(self, signal_period: int = 9, fast_period: int = 12,
+             slow_period: int = 26) -> pd.DataFrame:
         """
         Moving Average Convergence Divergence (MACD)
         is a trend-following momentum indicator that
@@ -101,9 +101,8 @@ class Analysis:
             Dataframe with RSI
         """
         delta = self.data['close'].diff()
-        up, down = delta.copy(), delta.copy()
-        up[up < 0] = 0
-        down[down > 0] = 0
+        up = delta.clip(lower=0)
+        down = -1 * delta.clip(upper=0)
         roll_up = up.rolling(period).mean()
         roll_down = down.abs().rolling(period).mean()
         rs = roll_up / roll_down
