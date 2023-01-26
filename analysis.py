@@ -51,6 +51,63 @@ class Analysis:
         return self.data['close'].ewm(
             span=period, adjust=False).mean()
 
+    def bollinger(self, period: int = 20, std: int = 2) -> pd.DataFrame:
+        """
+        Bollinger Bands are volatility bands placed above
+        and below a moving average. Volatility is based on
+        the standard deviation, which changes as volatility
+        increases and decreases. The bands automatically
+        widen when volatility increases and narrow when
+        volatility decreases.
+
+        Parameters
+        ----------
+        period : int
+            Number of periods to calculate Bollinger Bands
+        std : int
+            Number of standard deviations
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with Bollinger Bands
+        """
+        sma = self.sma(period)
+        std_dev = self.data['close'].rolling(period).std()
+        upper = sma + (std_dev * std)
+        lower = sma - (std_dev * std)
+        return pd.DataFrame({
+            'upper': upper,
+            'middle': sma,
+            'lower': lower
+        })
+
+    def rsi(self, period: int = 14) -> pd.DataFrame:
+        """
+        Relative Strength Index (RSI) is a momentum
+        indicator that measures the magnitude of recent
+        price changes to evaluate overbought or
+        oversold conditions in the price of a stock
+        or other asset.
+
+        Parameters
+        ----------
+        period : int
+            Number of periods to calculate RSI
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with RSI
+        """
+        delta = self.data['close'].diff()
+        up = delta.clip(lower=0)
+        down = -1 * delta.clip(upper=0)
+        roll_up = up.rolling(period).mean()
+        roll_down = down.abs().rolling(period).mean()
+        rs = roll_up / roll_down
+        return 100 - (100 / (1 + rs))
+
     def macd(self, signal_period: int = 9, fast_period: int = 12,
              slow_period: int = 26) -> pd.DataFrame:
         """
@@ -82,31 +139,6 @@ class Analysis:
             'Histogram': hist
         })
 
-    def rsi(self, period: int = 14) -> pd.DataFrame:
-        """
-        Relative Strength Index (RSI) is a momentum
-        indicator that measures the magnitude of recent
-        price changes to evaluate overbought or
-        oversold conditions in the price of a stock
-        or other asset.
-
-        Parameters
-        ----------
-        period : int
-            Number of periods to calculate RSI
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe with RSI
-        """
-        delta = self.data['close'].diff()
-        up = delta.clip(lower=0)
-        down = -1 * delta.clip(upper=0)
-        roll_up = up.rolling(period).mean()
-        roll_down = down.abs().rolling(period).mean()
-        rs = roll_up / roll_down
-        return 100 - (100 / (1 + rs))
 
     def stochastic(self, period_k: int = 14, period_d: int = 3,
                    period_s: int = 3) -> pd.DataFrame:
@@ -137,6 +169,32 @@ class Analysis:
             '%K': k,
             '%D': d.rolling(period_s).mean()
         })
+
+    def williams(self, period: int = 14) -> pd.DataFrame:
+        """
+        Williams %R is a momentum indicator that is the
+        inverse of the Fast Stochastic Oscillator. Also
+        referred to as %R, Williams %R reflects the level
+        of the close relative to the highest high for the
+        look-back period.
+
+        Parameters
+        ----------
+        period : int
+            Number of periods to calculate Williams %R
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with Williams %R
+        """
+        high = self.data['high']
+        low = self.data['low']
+        close = self.data['close']
+        highest_high = high.rolling(period).max()
+        lowest_low = low.rolling(period).min()
+        return 100 * (highest_high - close) / (highest_high - lowest_low)
+
 
     # TODO Add more indicators:
     # Money Flow Index and Ratio
