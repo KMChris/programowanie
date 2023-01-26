@@ -268,26 +268,117 @@ class Application(QWidget):
             ax.legend(loc='upper left')
 
     def plot_sma(self, ax):
-        pass
+        """
+        Plot simple moving average
+        on the candlestick chart.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        """
+
+        sma = self.analysis.sma().iloc[-self.bins - 1:]
+        ax.plot(self.bins - sma.index + 0.309,
+                sma, color='#F9A825', label='SMA')
 
     def plot_ema(self, ax):
-        pass
+        """
+        Plot exponential moving average
+        on the candlestick chart.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        """
+        ema = self.analysis.ema().iloc[-self.bins - 1:]
+        ax.plot(self.bins - ema.index + 0.309,
+                ema, color='#42A5F5', label='EMA')
 
     def plot_bollinger(self, ax):
-        pass
+        """
+        Plot Bollinger Bands on the
+        candlestick chart.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        """
+        bb = self.analysis.bollinger().iloc[-self.bins - 1:]
+        ax.plot(self.bins - bb.index + 0.309,
+                bb['upper'], color='#66BB6A', label='Bollinger Bands')
+        ax.fill_between(self.bins - bb.index + 0.309,
+                        bb['lower'], bb['upper'],
+                        color='#66BB6A', alpha=0.2)
+        ax.plot(self.bins - bb.index + 0.309,
+                bb['lower'], color='#66BB6A')
+        self.plot_sma(ax)
 
     def plot_rsi(self, ax):
-        pass
+        """
+        Plot relative strength index
+        on the candlestick chart.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        """
+        rsi = self.analysis.rsi().iloc[-self.bins - 1:]
+        ax.plot(self.bins - rsi.index + 0.309,
+                rsi, color='#9C27B0', label='RSI')
 
     def plot_macd(self, ax):
-        pass
+        """
+        Plot moving average convergence
+        divergence on the candlestick chart.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        """
+        macd = self.analysis.macd().iloc[-self.bins - 1:]
+        ax.plot(self.bins - macd.index + 0.309,
+                macd['MACD'], color='#F44336', label='MACD')
+        ax.plot(self.bins - macd.index + 0.309,
+                macd['Signal'], color='#4CAF50', label='Signal')
+        ax.bar(self.bins - macd.index + 0.309,
+               macd['Histogram'], color='#F44336',
+               alpha=0.2, width=0.618,
+               align='center', label='Histogram')
 
     def plot_stochastic(self, ax):
-        pass
+        """
+        Plot stochastic oscillator
+        on the candlestick chart.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        """
+        stochastic = self.analysis.stochastic().iloc[-self.bins - 1:]
+        ax.plot(self.bins - stochastic.index + 0.309,
+                stochastic['%K'], color='#0094FF', label='Stochastic %K')
+        ax.plot(self.bins - stochastic.index + 0.309,
+                stochastic['%D'], color='#FF6A00', label='Stochastic %D')
 
     def plot_williams(self, ax):
-        pass
+        """
+        Plot Williams %R
+        on the candlestick chart.
 
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The axes to plot on.
+        """
+        williams = self.analysis.williams().iloc[-self.bins - 1:]
+        ax.plot(self.bins - williams.index + 0.309,
+                williams, color='#F44336', label='Williams %R')
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
