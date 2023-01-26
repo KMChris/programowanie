@@ -110,28 +110,10 @@ class Application(QWidget):
         Update the symbols list
         when the category is changed.
         """
-        thread = Thread(target=self._update_symbols)
-        thread.start()
-
-    def _update_symbols(self):
-        """
-        Start the update in a separate
-        thread. This is done to prevent
-        the GUI from freezing.
-        List all available symbols
-        for the selected category and
-        add them to the symbols list.
-        """
         self.symbol.setEnabled(False)
         self.symbol.clear()
         category = self.category.currentText().lower()
-        if self.symbols[category] is not None:
-            self.symbol.addItems(self.symbols[category])
-        else:
-            symbols = self.api.list_category(category)['symbol']
-            symbols = symbols.sort_values()
-            self.symbols[category] = symbols
-            self.symbol.addItems(symbols)
+        self.symbol.addItems(self.symbols[category])
         self.symbol.setEnabled(True)
 
     def analyze(self):
