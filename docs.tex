@@ -1,0 +1,49 @@
+\title{Dokumentacja projektu}
+\author{
+	Krzysztof Mizgała
+	\and 
+	Maciej Kosierb
+	\and
+	Wiktoria Kudła
+	\and
+	Wiktoria Gałdusińska
+}
+\date{\today}
+
+\documentclass[12pt]{article}
+\usepackage{hyperref}
+
+\begin{document}
+	\maketitle
+	
+	\section{Opis projektu}\label{sec:opis-projektu}
+	Nasza aplikacja służy do analizy danych finansowych.
+	Korzysta z danych z https://site.financialmodelingprep.com/developer/docs/.
+	Klucz API jest wymagany do uruchomienia aplikacji.
+	Można go pobrać \href{https://site.financialmodelingprep.com/login}{tutaj} a następnie
+	trzeba ustawić zmienną środowiskową API\_KEY do klucza.
+	Można także korzystać z własnego klucza API tworząc plik .env w katalogu głównym projektu i
+	dodając zmienną API\_KEY z kluczem jako wartość.
+
+	Aplikacja pozwala na odczyt danych finansowych danej firmy.
+	Używając różnych metod do zanalizowania, pokazuje wyniki i przewiduje ceny rynkowe.
+
+	\section{Użyte technologie}\label{sec:uzyte-technologie}
+	 https://site.financialmodelingprep.com/developer/docs/ - API, z którego korzystamy
+
+	Wykorzystane biblioteki Pythona:
+	- pandas
+	- requests
+	- dotenv
+	- PyQt5
+
+	Lista plików:
+	- analysis.py
+	- api.py
+	- docs.tex
+	- README.md
+	- requirements.txt
+	- ui.py
+
+
+\end{document}

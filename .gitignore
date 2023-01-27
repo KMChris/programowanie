@@ -51,3 +51,9 @@ __pypackages__/
 .venv
 env/
 venv/
+
+# LaTeX
+out/docs.aux
+out/docs.log
+out/docs.out
+out/docs.synctex.gz

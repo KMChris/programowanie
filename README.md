@@ -1,23 +1,28 @@
-# Web scrapping
+# Financial data analysis
 
 ## Description
-Aplikacja powinna pobierać kod źródłowy co najmniej kilku osobnych stron
-(lub podstron jednego portalu) i na podstawie pobranych danych, wykonywać
-pewną analizę. Powinna być możliwość zapisania otrzymanych wyników w osobnym pliku.
-Jakość projektu zależy ściśle od funkcjonalności interfejsu i poziomu zaawansowania
-przeprowadzonej analizy. Przykład: zaplanowanie zwiedzania
-najciekawszych miejsc w danym mieście na podstawie strony tripadvisor.
+
+Application for financial data analysis. It uses data from
+[Financial Modeling Prep API](https://site.financialmodelingprep.com/developer/docs/).
+API key is required to run the application. You can get
+your own [here](https://site.financialmodelingprep.com/login).
+Then set API_KEY environment variable to your key. You can also
+use your own API key by creating `.env` file in the root directory
+of the project and adding API_KEY variable with your key as a value.
+
+The application allows you to view the financial data of a given company.
+Using various analysis methods it analyzes the data, shows the results
+and predicts future market prices.
+
+**Note:** The application is still in development.
+
+***
 
 ## Setup
 
 ```bash
-git clone git@gitlab.com:KMChris/programowanie.git webscraper
-cd webscraper
-```
-
-## Switch branch to dev
-
-```bash
+git clone git@gitlab.com:KMChris/programowanie.git
+cd programowanie
 git checkout dev
 ```
 
@@ -25,22 +30,8 @@ git checkout dev
 
 ```bash
 git add .
+git pull
 git commit -m "Commit message"
-git push
-```
-
-## Create merge request
-
-```bash
-git checkout -b feature-name
-git push --set-upstream origin feature-name
-```
-
-## Merge request
-
-```bash
-git checkout dev
-git merge feature-name
 git push
 ```
 
