@@ -2,8 +2,6 @@ from analysis import Analysis
 import pandas as pd
 import pytest
 
-analysis = Analysis('AAPl')
-
 # Create a new instance of Analysis class without
 # calling __init__ method (which would require API key)
 analysis = object.__new__(Analysis)
