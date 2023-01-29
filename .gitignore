@@ -53,7 +53,10 @@ env/
 venv/
 
 # LaTeX
-out/docs.aux
-out/docs.log
-out/docs.out
-out/docs.synctex.gz
+*.aux
+*.log
+*.out
+*.synctex.gz
+
+# JetBrains
+.idea/
