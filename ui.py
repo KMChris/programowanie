@@ -153,7 +153,7 @@ class Application(QWidget):
 
     def update_symbols(self):
         """
-        Update the symbols list
+        Update the names list
         when the category is changed.
         """
         self.symbol.setEnabled(False)
@@ -462,8 +462,11 @@ class Application(QWidget):
         ax.plot(self.bins - williams.index + 0.309,
                 williams, color='#F44336', label='Williams %R')
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     window = Application()
     window.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()

@@ -95,8 +95,3 @@ class API:
         """
         url = f'v3/historical-market-capitalization/{symbol}'
         return self._get_data(url)
-
-if __name__ == "__main__":
-    api = API()
-    print(api.list_stocks())
-    print(api.get_historical('AAPL', '1min'))
