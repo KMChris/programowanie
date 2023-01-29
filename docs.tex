@@ -1,17 +1,19 @@
 \title{Dokumentacja projektu}
 \author{
-	Krzysztof Mizgała
+	Krzysztof Mizgała 262839
 	\and 
-	Maciej Kosierb
+	Maciej Kosierb 262239
 	\and
-	Wiktoria Kudła
+	Wiktoria Kudła 262254
 	\and
-	Wiktoria Gałdusińska
+	Wiktoria Gałdusińska 262209
 }
 \date{\today}
 
 \documentclass[12pt]{article}
 \usepackage{hyperref}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
 
 \begin{document}
 	\maketitle
@@ -28,22 +30,53 @@
 	Aplikacja pozwala na odczyt danych finansowych danej firmy.
 	Używając różnych metod do zanalizowania, pokazuje wyniki i przewiduje ceny rynkowe.
 
-	\section{Użyte technologie}\label{sec:uzyte-technologie}
-	 https://site.financialmodelingprep.com/developer/docs/ - API, z którego korzystamy
+	\section{Użyte technologie}\label{sec:uzyte-echnologie}
+	 https://site.financialmodelingprep.com/developer/docs/ - API, z którego korzystamy.
 
-	Wykorzystane biblioteki Pythona:
-	- pandas
-	- requests
-	- dotenv
-	- PyQt5
+	 Wykorzystane biblioteki Pythona:
+	\begin{itemize}
+		\item pandas
+		\item requests
+		\item dotenv
+		\item PyQt5
+	\end{itemize}
 
 	Lista plików:
-	- analysis.py
-	- api.py
-	- docs.tex
-	- README.md
-	- requirements.txt
-	- ui.py
+	\begin{itemize}
+		\item analysis.py
+		\item api.py
+		\item docs.tex
+		\item README.md
+		\item requirements.txt
+		\item ui.py
+	\end{itemize}
+
+	\section{Opis metod}\label{sec:uzyte-metody}
+	\begin{itemize}
+	\item \textit{ui.py}
+		\begin{itemize}
+			\item \_get\_symbols - pobiera symbole i nazwy analizowanych obiektów z pliku CSV
+			\item \_init\_it - tworzy graficzny interfejs użytkownika
+			\item udpate\_symbols - aktualizuje listę skrótów, kiedy kategoria jest zmieniona
+			\item update\_signal - aktualizuje etykietę sygnału i kolor pudełka (?:)), kiedy sygnał jest zmieniony
+			\item update\_indicators - aktualizuje listę wskaźników, kiedy pola wyboru są zmienione
+			\item update\_bins - aktualizuje liczbę słupków histogramu
+			\item analyze - analizuje dane dla wybranego obiektu.
+			Pokazuje wyniki w postaci tabeli i wykresu świecowego
+			\item \_analyze - zaczyna analizę w osobnym wątku po to, by zapobiec zacinaniu się interfejsowi
+			\item draw\_plot - tworzy wykres świecowy
+			\item plot\_candles - tworzy świece wykresu na osiach na podstawie dostarczonych danych
+			\item plot\_indicators - tworzy wykres wskaźników, które zostały wybrane przez użytkownika, na wykresie świecowym
+			\item plot\_sma - tworzy wykres wskaźników SMA na wykresie świecowym
+			\item plot\_ema - tworzy wykres wskaźników EMA na wykresie świecowym
+			\item plot\_bollinger - tworzy wykres wstęg Bollingera na wykresie świecowym
+			\item plot\_rsi - tworzy wykres wskaźników RSI na wykresie świecowym
+			\item plot\_macd - tworzy wykres wskaźników na wykresie świecowym
+			\item plot\_stochastic - tworzy wykres oscylatora stochastycznego na wykresie świecowym
+			\item plot\_williams - tworzy wykres \%R Williamsa
+		\end{itemize}
+	\end{itemize}
+
 
 
 \end{document}
