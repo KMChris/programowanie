@@ -153,7 +153,7 @@ class Application(QWidget):
 
     def update_symbols(self):
         """
-        Update the symbols list
+        Update the names list
         when the category is changed.
         """
         self.symbol.setEnabled(False)
