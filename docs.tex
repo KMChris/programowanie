@@ -32,7 +32,7 @@
 	Używając różnych metod do zanalizowania, pokazuje wyniki i przewiduje ceny rynkowe.
 
 	\section{Użyte technologie}\label{sec:uzyte-echnologie}
-	 https://site.financialmodelingprep.com/developer/docs/ - API, z którego korzystamy.
+	 \href{https://site.financialmodelingprep.com/developer/docs/} - API, z którego korzystamy.
 
 	 Wykorzystane biblioteki Pythona:
 	\begin{itemize}
@@ -56,25 +56,63 @@
 	\begin{itemize}
 	\item \textit{ui.py}
 		\begin{itemize}
-			\item \_get\_symbols - pobiera symbole i nazwy analizowanych obiektów z pliku CSV
-			\item \_init\_it - tworzy graficzny interfejs użytkownika
-			\item udpate\_symbols - aktualizuje listę skrótów, kiedy kategoria jest zmieniona
-			\item update\_signal - aktualizuje etykietę sygnału i kolor pudełka (?:)), kiedy sygnał jest zmieniony
-			\item update\_indicators - aktualizuje listę wskaźników, kiedy pola wyboru są zmienione
-			\item update\_bins - aktualizuje liczbę słupków histogramu
-			\item analyze - analizuje dane dla wybranego obiektu.
-			Pokazuje wyniki w postaci tabeli i wykresu świecowego
-			\item \_analyze - zaczyna analizę w osobnym wątku po to, by zapobiec zacinaniu się interfejsowi
-			\item draw\_plot - tworzy wykres świecowy
-			\item plot\_candles - tworzy świece wykresu na osiach na podstawie dostarczonych danych
-			\item plot\_indicators - tworzy wykres wskaźników, które zostały wybrane przez użytkownika, na wykresie świecowym
-			\item plot\_sma - tworzy wykres wskaźników SMA na wykresie świecowym
-			\item plot\_ema - tworzy wykres wskaźników EMA na wykresie świecowym
-			\item plot\_bollinger - tworzy wykres wstęg Bollingera na wykresie świecowym
-			\item plot\_rsi - tworzy wykres wskaźników RSI na wykresie świecowym
-			\item plot\_macd - tworzy wykres wskaźników na wykresie świecowym
-			\item plot\_stochastic - tworzy wykres oscylatora stochastycznego na wykresie świecowym
-			\item plot\_williams - tworzy wykres \%R Williamsa
+			\item `\_get\_symbols` - pobiera symbole i nazwy analizowanych obiektów z pliku CSV.
+			\item `\_init\_it` - tworzy graficzny interfejs użytkownika.
+			\item `update\_symbols` - aktualizuje listę skrótów, kiedy kategoria jest zmieniona.
+			\item `update\_signal` - aktualizuje etykietę sygnału i kolor pudełka (?:)), kiedy sygnał jest zmieniony.
+			\item `update\_indicators` - aktualizuje listę wskaźników, kiedy pola wyboru są zmienione.
+			\item `update\_bins` - aktualizuje liczbę słupków histogramu.
+			\item `analyze` - analizuje dane dla wybranego obiektu.
+			Pokazuje wyniki w postaci tabeli i wykresu świecowego.
+			\item `\_analyze` - zaczyna analizę w osobnym wątku po to, by zapobiec zacinaniu się interfejsowi.
+			\item `draw\_plot` - tworzy wykres świecowy.
+			\item `plot\_candles` - tworzy świece wykresu na osiach na podstawie dostarczonych danych.
+			\item `plot\_indicators` - tworzy wykres wskaźników, które zostały wybrane przez użytkownika, na wykresie świecowym.
+			\item `plot\_sma` - tworzy wykres wskaźników SMA na wykresie świecowym.
+			\item `plot\_ema` - tworzy wykres wskaźników EMA na wykresie świecowym.
+			\item `plot\_bollinger` - tworzy wykres wstęg Bollingera na wykresie świecowym.
+			\item `plot\_rsi` - tworzy wykres wskaźników RSI na wykresie świecowym.
+			\item `plot\_macd` - tworzy wykres wskaźników na wykresie świecowym.
+			\item `plot\_stochastic` - tworzy wykres oscylatora stochastycznego na wykresie świecowym.
+			\item `plot\_williams` - tworzy wykres \%R Williamsa.
+		\end{itemize}
+		\item \textit{analysis.py}
+		\begin{itemize}
+			\item `get\_signal` - otrzymuje sygnał na opierający się na wskaźnikach analizy techniczej.
+			Bazuje na następujących zasadach:
+			\begin{itemize}
+				\item Kupno, gdy MACD przekracza linię sygnału z góry.
+				\item Sprzedaż, gdy MACD przekracza linię sygnału z dołu.
+				\item Kupno, gdy RSI jest mniejszy niż 30.
+				\item Sprzedaż, gdy RSI jest większy niż 70.
+				\item Kupno, gdy \%K (oscylator wolny) przekroczy \%D (oscylator szybki).
+				\item Sprzedaż, gdy \%D przekroczy \%K.
+				\item Kupno, gdy SMA jest większe od EMA.
+				\item Sprzedaż, gdy SMA jest mniejsze od EMA.
+				\item Kupno, gdy SMA jest większe od ceny instrumentu.
+				\item Sprzedaż, gdy SMA jest mniejsze od ceny instrumentu.
+				\item Kupno, gdy EMA jest większe od ceny od ceny instrumentu.
+				\item Sprzedaż, gdy EMA jest mniejsze od ceny instrumentu.
+			\end{itemize}
+			\item `sma` - Prosta Średnia Krocząca (ang. SMA - Simple Moving Average), jest
+			najbardziej podstawową średnią kroczącą.
+			Oblicza się ją sumując ceny zamykające z ostatnich\textit{n} dni i dzieląc tę sumę przez \textit{n}.
+			\item `ema` - Wykładnicza Średnia Krocząca (ang. EMA - Exponential Moving Average) jest rodzajem
+			średniej kroczącej, która kładzie większy nacisk na nowszych danych.
+			EMA jest bardziej wrażliwy na ostatnie zmiany w cenie.
+			\item `bollinger` - Wstęgi Bollingera to wstęgi zmienności między średnią krocząca.
+			Zmienność jest liczona za pomocą odchylenia standardowego, które zmienia się, kiedy
+			zmiennośc rośnie lub maleje.
+			Wstęgi automatycznie poszerzają się, kiedy zmienność rośnie i zwężają, gdy maleje.
+			\item `rsi` - Wskaźnik Siły Względnej (ang. RSI - Relative Strength Index) jest wskaźnikiem
+			dynamiki, który mierzy znaczenie ostatnich zmian cen, aby ocenić warunki wykupienia lub wyprzedania
+			akcji lub innego kapitału.
+			\item `macd` - Konwergencja/Dywergencja Średnich Kroczących (ang. Moving Average Convergence Divergence)
+			to wskaźnik dynamiki trendów pokazujący zaleźność pomiędzy dwiema średnimi kroczącymi cen.
+			\item `stochastic` - Oscylator Stochastyczny (ang. Stochastic Oscillator) jest wskaźnikiem dynamiki,
+			który porównuje konkretną cenę zamykającą do zakresu jej cen na przestrzeni czasu.
+			\item `williams` - \%R Williamsa to wskaźnik dynamiki. Jest oscylatorem, który pokazuje zależność obecnej ceny zamknięcia w relacji do
+			maksymalnej i minimalnej ceny z poprzednich N dni.
 		\end{itemize}
 	\end{itemize}
 
