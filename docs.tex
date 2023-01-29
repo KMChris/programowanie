@@ -14,6 +14,7 @@
 \usepackage{hyperref}
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
+\usepackage{pgf-umlcd}
 
 \begin{document}
 	\maketitle
@@ -77,6 +78,35 @@
 		\end{itemize}
 	\end{itemize}
 
-
+	\section{Diagram UML}
+	\begin{tikzpicture}
+		\begin{class}{Application}{0,0}
+			\attribute{api}
+			\attribute{analysis}
+			\attribute{bins}
+			\attribute{symbols}
+			\attribute{names}
+			\attribute{indicators}
+			\operation{\_ \_ init\_ \_}
+			\operation{\_ get\_ symbols}
+			\operation{\_ init\_ ui}
+			\operation{update\_ symbols}
+			\operation{update\_ signal}
+			\operation{update\_ indicators}
+			\operation{update\_ bins}
+			\operation{analyze}
+			\operation{\_ analyze}
+			\operation{draw\_ plot}
+			\operation{plot\_ candles}
+			\operation{plot\_ indicators}
+			\operation{plot\_ sma}
+			\operation{plot\_ ema}
+			\operation{plot\_ bollinger}
+			\operation{plot\_ rsi}
+			\operation{plot\_macd}
+			\operation{plot\_ stochastic}
+			\operation{plot\_ williams}
+		\end{class}
+	\end{tikzpicture}
 
 \end{document}
