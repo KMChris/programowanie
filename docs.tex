@@ -15,6 +15,7 @@
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
 \usepackage{pgf-umlcd}
+\usepackage{listings}
 
 \begin{document}
 	\maketitle
@@ -56,7 +57,7 @@
 	\begin{itemize}
 	\item \textit{ui.py}
 		\begin{itemize}
-			\item `\_get\_symbols` - pobiera symbole i nazwy analizowanych obiektów z pliku CSV.
+			\item \lstinline{_get_symbols} - pobiera symbole i nazwy analizowanych obiektów z pliku CSV.
 			\item `\_init\_it` - tworzy graficzny interfejs użytkownika.
 			\item `update\_symbols` - aktualizuje listę skrótów, kiedy kategoria jest zmieniona.
 			\item `update\_signal` - aktualizuje etykietę sygnału i kolor pudełka (?:)), kiedy sygnał jest zmieniony.
@@ -67,7 +68,8 @@
 			\item `\_analyze` - zaczyna analizę w osobnym wątku po to, by zapobiec zacinaniu się interfejsowi.
 			\item `draw\_plot` - tworzy wykres świecowy.
 			\item `plot\_candles` - tworzy świece wykresu na osiach na podstawie dostarczonych danych.
-			\item `plot\_indicators` - tworzy wykres wskaźników, które zostały wybrane przez użytkownika, na wykresie świecowym.
+			\item `plot\_indicators` - tworzy wykres wskaźników, które zostały wybrane przez użytkownika, na wykresie
+			świecowym.
 			\item `plot\_sma` - tworzy wykres wskaźników SMA na wykresie świecowym.
 			\item `plot\_ema` - tworzy wykres wskaźników EMA na wykresie świecowym.
 			\item `plot\_bollinger` - tworzy wykres wstęg Bollingera na wykresie świecowym.
@@ -111,12 +113,21 @@
 			to wskaźnik dynamiki trendów pokazujący zaleźność pomiędzy dwiema średnimi kroczącymi cen.
 			\item `stochastic` - Oscylator Stochastyczny (ang. Stochastic Oscillator) jest wskaźnikiem dynamiki,
 			który porównuje konkretną cenę zamykającą do zakresu jej cen na przestrzeni czasu.
-			\item `williams` - \%R Williamsa to wskaźnik dynamiki. Jest oscylatorem, który pokazuje zależność obecnej ceny zamknięcia w relacji do
-			maksymalnej i minimalnej ceny z poprzednich N dni.
+			\item `williams` - \%R Williamsa to wskaźnik dynamiki. Jest oscylatorem, który pokazuje zależność obecnej
+			ceny zamknięcia w relacji do maksymalnej i minimalnej ceny z poprzednich dni.
 		\end{itemize}
+		\item \textit{api.py}
+			\begin{itemize}
+				\item `\_get\_data` - tworzy ramkę danych lub plik JSON z danych z API dla danego adresu URL.
+				\item `list\_category` - tworzy listę symboli danej kategorii.
+				\item `get\_historical` - pobiera ceny historyczne oraz wolumen dla danej akcji, kryptowaluty, forexa
+				lub zasobu.
+				\item `get\_historical\_capitalization` - pobiera kapitalizację historyczną dla konkretnego symbolu
+				akcji.
+			\end{itemize}
 	\end{itemize}
 
-	\section{Diagram UML}
+	\section{Diagram UML}\label{sec:diagram-uml}
 	\begin{tikzpicture}
 		\begin{class}{Application}{0,0}
 			\attribute{api}
