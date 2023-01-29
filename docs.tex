@@ -129,33 +129,59 @@
 
 	\section{Diagram UML}\label{sec:diagram-uml}
 	\begin{tikzpicture}
-		\begin{class}{Application}{0,0}
-			\attribute{api}
-			\attribute{analysis}
-			\attribute{bins}
-			\attribute{symbols}
-			\attribute{names}
-			\attribute{indicators}
-			\operation{\_ \_ init\_ \_}
-			\operation{\_ get\_ symbols}
-			\operation{\_ init\_ ui}
-			\operation{update\_ symbols}
-			\operation{update\_ signal}
-			\operation{update\_ indicators}
-			\operation{update\_ bins}
-			\operation{analyze}
-			\operation{\_ analyze}
-			\operation{draw\_ plot}
-			\operation{plot\_ candles}
-			\operation{plot\_ indicators}
-			\operation{plot\_ sma}
-			\operation{plot\_ ema}
-			\operation{plot\_ bollinger}
-			\operation{plot\_ rsi}
-			\operation{plot\_macd}
-			\operation{plot\_ stochastic}
-			\operation{plot\_ williams}
-		\end{class}
-	\end{tikzpicture}
+        \begin{class}[text width = 0.38\textwidth]{API}{0, 0}
+            \attribute{output}
+            \operation{\_\_init\_\_}
+            \operation{\_get\_data}
+            \operation{list\_category}
+            \operation{get\_historical}
+            \operation{get\_historical\_capitalization}
+        \end{class}
+        \begin{class}[text width = 0.18\textwidth]{Analysis}{10, 0}
+            \inherit{API}
+            \attribute{api}
+            \attribute{symbol}
+            \attribute{data}
+            \attribute{signal}
+            \operation{\_\_init\_\_}
+            \operation{\_get\_signal}
+            \operation{sma}
+            \operation{ema}
+            \operation{bollinger}
+            \operation{rsi}
+            \operation{macd}
+            \operation{stochastic}
+            \operation{williams}
+        \end{class}
+        \begin{class}[text width = 0.25\textwidth]{Application}{5, -3}
+            \inherit{API}
+            \inherit{Analysis}
+            \attribute{api}
+            \attribute{analysis}
+            \attribute{bins}
+            \attribute{symbols}
+            \attribute{names}
+            \attribute{indicators}
+            \operation{\_\_init\_\_}
+            \operation{\_get\_symbols}
+            \operation{\_init\_ui}
+            \operation{update\_symbols}
+            \operation{update\_signal}
+            \operation{update\_indicators}
+            \operation{update\_bins}
+            \operation{analyze}
+            \operation{\_analyze}
+            \operation{draw\_plot}
+            \operation{plot\_candles}
+            \operation{plot\_indicators}
+            \operation{plot\_sma}
+            \operation{plot\_ema}
+            \operation{plot\_bollinger}
+            \operation{plot\_rsi}
+            \operation{plot\_macd}
+            \operation{plot\_stochastic}
+            \operation{plot\_williams}
+        \end{class}
+    \end{tikzpicture}
 
 \end{document}
